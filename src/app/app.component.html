@@ -2,13 +2,56 @@
   class="container w-100 bg-primary text-white text-center p-3"
   style="height: 7vh; max-width: 100%"
 >
-  This is a heading
+  <h1>This is a heading</h1>
 </div>
 
 <div class="m-0 d-flex">
-  <div class="border p-3" style="width: 15%; height: 93vh">this is a thing</div>
+  <div class="container border p-3" style="width: 15%; height: 93vh">
+    <div class="heading mt-3"><h3>Months</h3></div>
+    <div class="vstack gap-2 mt-3">
+      <!-- todo play with active class for click events and default -->
+      <button *ngFor="let m of months; index as i" class="btn btn-primary">
+        {{ m }}
+      </button>
+    </div>
+  </div>
 
-  <div class="card w-100 m-3 p-3">that will call the right thing</div>
+  <div class="card w-100 m-3 p-3">
+    <div class="card-heading"><h3>Budgets</h3></div>
+    <div class="card-body px-0">
+      <div class="row">
+        <div class="col-3">
+          <div class="container-fluid border border-primary rounded-2">
+            <h4>Monthly Payments</h4>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr class="">
+                  <th>Description</th>
+                  <th class="">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>income</td>
+                  <td>R 8000</td>
+                </tr>
+                <tr class="table-group-divider">
+                  <td>Rent</td>
+                  <td>R 3000</td>
+                </tr>
+                <tr>
+                  <td>Groceries</td>
+                  <td>R 2000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-9">Next</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <router-outlet></router-outlet>
