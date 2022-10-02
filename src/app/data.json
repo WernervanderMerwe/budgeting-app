@@ -1,0 +1,19 @@
+{
+  "months": [
+    "25 April - 25 May",
+    "25 June - 25 July",
+    "25 August - 25 September"
+  ],
+  "monthlyPayments": [
+    { "description": "Income", "amount": 10000 },
+    { "description": "Rent", "amount": 3000 },
+    { "description": "Phone Bill", "amount": 300 },
+    { "description": "Car payment", "amount": 2000 }
+  ],
+  "monthlyBudgets": [
+    { "description": "Groceries", "amount": 2000 },
+    { "description": "Fuel", "amount": 1000 },
+    { "description": "Eating Out", "amount": 500 },
+    { "description": "Hobbies", "amount": 1000 }
+  ]
+}
