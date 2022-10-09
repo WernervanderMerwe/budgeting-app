@@ -15,5 +15,23 @@
     { "description": "Fuel", "amount": 1000 },
     { "description": "Eating Out", "amount": 500 },
     { "description": "Hobbies", "amount": 1000 }
-  ]
+  ],
+  "budgetEntries": [
+    { "budget": "Groceries", "description": "Checkers", "amount": 340 },
+    { "budget": "Fuel", "description": "BP", "amount": 720 },
+    { "budget": "Groceries", "description": "Woolies", "amount": 420 },
+    { "budget": "Fuel", "description": "Caltex", "amount": 640 },
+    { "budget": "Eating Out", "description": "PizzaHut", "amount": 120 },
+    { "budget": "Hobbies", "description": "RC Heli Blades", "amount": 250 }
+  ],
+  "someVariableField": {
+    "Groceries": [
+      { "budget": "Groceries", "description": "Checkers", "amount": 340 },
+      { "budget": "Groceries", "description": "Woolies", "amount": 420 }
+    ],
+    "Fuel": [
+      { "budget": "Fuel", "description": "BP", "amount": 720 },
+      { "budget": "Fuel", "description": "Caltex", "amount": 640 }
+    ]
+  }
 }
