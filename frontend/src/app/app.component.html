@@ -1,4 +1,19 @@
 <div class="container-fluid p-0">
+  <!-- Dark Mode Toggle -->
+  <div class="theme-toggle">
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      (click)="toggleDarkMode()"
+      title="Toggle Dark Mode"
+    >
+      <i
+        class="bi"
+        [class.bi-moon-stars-fill]="!darkMode"
+        [class.bi-sun-fill]="darkMode"
+      ></i>
+    </button>
+  </div>
+
   <!-- Header -->
   <div class="bg-primary text-white text-center p-3">
     <h1>Basic Budget App</h1>
@@ -7,8 +22,17 @@
   <!-- Main Content -->
   <div class="d-flex">
     <!-- Sidebar: Month Selection -->
-    <div class="border p-3" style="width: 200px; min-height: 93vh">
-      <h3>Months</h3>
+    <div class="sidebar border-end p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Months</h5>
+        <button
+          class="btn btn-sm btn-primary btn-icon"
+          (click)="openAddMonthModal()"
+          title="Add New Month"
+        >
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </div>
       <div class="vstack gap-2 mt-3">
         <button
           *ngFor="let month of months"
@@ -37,22 +61,39 @@
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="!loading && !currentMonth && months.length === 0" class="text-center p-5">
+      <div
+        *ngIf="!loading && !currentMonth && months.length === 0"
+        class="text-center p-5"
+      >
         <h3>No months found</h3>
-        <p>Create your first month using the backend API at http://localhost:3000/api/months</p>
+        <p>
+          Create your first month using the backend API at
+          http://localhost:3000/api/months
+        </p>
       </div>
 
       <!-- Month Data -->
       <div *ngIf="!loading && currentMonth">
-        <h2>{{currentMonth.month_name}} {{currentMonth.year}}</h2>
+        <h2>{{ currentMonth.month_name }} {{ currentMonth.year }}</h2>
 
-        <div class="row">
+        <div class="row g-3">
           <!-- Left Column: Payments and Budgets -->
-          <div class="col-md-4">
+          <div class="col-lg-3 col-md-4">
             <!-- Monthly Payments -->
             <div class="card mb-3">
-              <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Monthly Payments</h5>
+              <div
+                class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+              >
+                <h5 class="mb-0">
+                  <i class="bi bi-wallet2 me-2"></i>Monthly Payments
+                </h5>
+                <button
+                  class="btn btn-sm btn-light btn-icon"
+                  (click)="openAddPaymentModal()"
+                  title="Add Fixed Payment"
+                >
+                  <i class="bi bi-plus-lg"></i>
+                </button>
               </div>
               <div class="card-body">
                 <table class="table table-sm">
@@ -60,22 +101,63 @@
                     <tr>
                       <th>Description</th>
                       <th class="text-end">Amount</th>
+                      <th style="width: 80px" class="text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td><strong>Income</strong></td>
-                      <td class="text-end text-success">{{ formatCurrency(currentMonth.income) }}</td>
+                      <td>
+                        <strong
+                          ><i
+                            class="bi bi-currency-dollar text-success me-1"
+                          ></i
+                          >Income</strong
+                        >
+                      </td>
+                      <td class="text-end text-success fw-bold">
+                        {{ formatCurrency(currentMonth.income) }}
+                      </td>
+                      <td class="text-end">
+                        <button
+                          class="btn btn-outline-primary btn-icon btn-sm"
+                          (click)="openEditIncomeModal()"
+                          title="Edit Income"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                      </td>
                     </tr>
                     <tr *ngFor="let payment of currentMonth.fixedPayments">
                       <td>{{ payment.name }}</td>
-                      <td class="text-end">{{ formatCurrency(payment.amount) }}</td>
+                      <td class="text-end">
+                        {{ formatCurrency(payment.amount) }}
+                      </td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button
+                            class="btn btn-outline-primary btn-icon"
+                            (click)="openEditPaymentModal(payment)"
+                            title="Edit"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button
+                            class="btn btn-outline-danger btn-icon"
+                            (click)="deleteFixedPayment(payment.id)"
+                            title="Delete"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                   <tfoot>
                     <tr class="table-primary">
                       <td><strong>After Payments</strong></td>
-                      <td class="text-end"><strong>{{ formatCurrency(paymentSubTotal) }}</strong></td>
+                      <td class="text-end" colspan="2">
+                        <strong>{{ formatCurrency(paymentSubTotal) }}</strong>
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
@@ -84,8 +166,19 @@
 
             <!-- Monthly Budgets -->
             <div class="card">
-              <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Monthly Budgets</h5>
+              <div
+                class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+              >
+                <h5 class="mb-0">
+                  <i class="bi bi-piggy-bank me-2"></i>Monthly Budgets
+                </h5>
+                <button
+                  class="btn btn-sm btn-light btn-icon"
+                  (click)="openAddCategoryModal()"
+                  title="Add Budget Category"
+                >
+                  <i class="bi bi-plus-lg"></i>
+                </button>
               </div>
               <div class="card-body">
                 <table class="table table-sm">
@@ -93,22 +186,45 @@
                     <tr>
                       <th>Category</th>
                       <th class="text-end">Budget</th>
+                      <th style="width: 80px" class="text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let category of currentMonth.categories">
                       <td>{{ category.name }}</td>
-                      <td class="text-end">{{ formatCurrency(category.allocated_amount) }}</td>
+                      <td class="text-end">
+                        {{ formatCurrency(category.allocated_amount) }}
+                      </td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button
+                            class="btn btn-outline-primary btn-icon"
+                            (click)="openEditCategoryModal(category)"
+                            title="Edit"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                   <tfoot>
                     <tr class="table-primary">
                       <td><strong>Sub Total</strong></td>
-                      <td class="text-end"><strong>{{ formatCurrency(budgetSubTotal) }}</strong></td>
+                      <td class="text-end" colspan="2">
+                        <strong>{{ formatCurrency(budgetSubTotal) }}</strong>
+                      </td>
                     </tr>
                     <tr class="table-success">
-                      <td><strong>Extra Money</strong></td>
-                      <td class="text-end"><strong>{{ formatCurrency(extraMoney) }}</strong></td>
+                      <td>
+                        <strong
+                          ><i class="bi bi-check-circle me-1"></i>Extra
+                          Money</strong
+                        >
+                      </td>
+                      <td class="text-end" colspan="2">
+                        <strong>{{ formatCurrency(extraMoney) }}</strong>
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
@@ -117,39 +233,127 @@
           </div>
 
           <!-- Right Column: Category Transactions -->
-          <div class="col-md-8">
-            <div class="row">
-              <div class="col-md-6 mb-3" *ngFor="let category of currentMonth.categories">
+          <div class="col-lg-9 col-md-8">
+            <div class="row g-3">
+              <div
+                class="col-xl-4 col-lg-6 col-md-12"
+                *ngFor="let category of currentMonth.categories"
+              >
                 <div class="card h-100">
-                  <div class="card-header"
-                       [class.bg-success]="getCategorySpending(category.id)?.overBudget === 0"
-                       [class.bg-danger]="(getCategorySpending(category.id)?.overBudget || 0) > 0"
-                       [class.text-white]="true">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <h6 class="mb-0">{{ category.name }}</h6>
-                      <button class="btn btn-sm btn-light" (click)="openAddTransactionModal(category.id)">
-                        + Add
-                      </button>
+                  <!-- Category Header - Always Visible -->
+                  <div
+                    class="card-header"
+                    [class.bg-success]="
+                      getCategorySpending(category.id)?.overBudget === 0
+                    "
+                    [class.bg-danger]="
+                      (getCategorySpending(category.id)?.overBudget || 0) > 0
+                    "
+                    [class.text-white]="true"
+                    (click)="toggleCategory(category.id)"
+                    style="cursor: pointer"
+                  >
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      <div class="d-flex align-items-center gap-2">
+                        <!-- Chevron Icon -->
+                        <i
+                          class="bi"
+                          [class.bi-chevron-right]="
+                            !isCategoryExpanded(category.id)
+                          "
+                          [class.bi-chevron-down]="
+                            isCategoryExpanded(category.id)
+                          "
+                        ></i>
+                        <h6 class="mb-0">{{ category.name }}</h6>
+                      </div>
+                      <div class="d-flex gap-1">
+                        <button
+                          class="btn btn-sm btn-light btn-icon"
+                          (click)="
+                            openAddTransactionModal(category.id);
+                            $event.stopPropagation()
+                          "
+                          title="Add Transaction"
+                        >
+                          <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <button
+                          class="btn btn-sm btn-danger btn-icon"
+                          (click)="
+                            deleteCategory(category.id);
+                            $event.stopPropagation()
+                          "
+                          title="Delete Category"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
                     </div>
-                    <small>Budget: {{ formatCurrency(category.allocated_amount) }}</small>
+                    <!-- Summary - Always Visible -->
+                    <div class="mt-2 d-flex justify-content-between">
+                      <small
+                        ><i class="bi bi-piggy-bank-fill me-1"></i>Budget:
+                        {{ formatCurrency(category.allocated_amount) }}</small
+                      >
+                      <small
+                        ><i class="bi bi-cash-stack me-1"></i>Spent:
+                        {{
+                          formatCurrency(getCategoryTotal(category.id))
+                        }}</small
+                      >
+                    </div>
                   </div>
-                  <div class="card-body p-2">
+
+                  <!-- Expanded Details - Collapsible -->
+                  <div
+                    class="card-body p-2"
+                    *ngIf="isCategoryExpanded(category.id)"
+                  >
                     <table class="table table-sm table-striped mb-0">
                       <tbody>
-                        <tr *ngFor="let transaction of getCategoryTransactions(category.id)">
+                        <tr
+                          *ngFor="
+                            let transaction of getCategoryTransactions(
+                              category.id
+                            )
+                          "
+                        >
                           <td style="width: 70%">
-                            <small>{{ transaction.description || 'No description' }}</small>
-                            <br>
-                            <small class="text-muted">{{ transaction.transaction_date }}</small>
+                            <small
+                              ><i class="bi bi-receipt me-1"></i
+                              >{{
+                                transaction.description || "No description"
+                              }}</small
+                            >
+                            <br />
+                            <small class="text-muted"
+                              ><i class="bi bi-calendar3 me-1"></i
+                              >{{ transaction.transaction_date }}</small
+                            >
                           </td>
                           <td class="text-end" style="width: 20%">
-                            {{ formatCurrency(transaction.amount) }}
+                            <small class="fw-bold">{{
+                              formatCurrency(transaction.amount)
+                            }}</small>
                           </td>
-                          <td style="width: 10%">
-                            <button class="btn btn-sm btn-danger" (click)="deleteTransaction(transaction.id)">×</button>
+                          <td style="width: 10%" class="text-end">
+                            <button
+                              class="btn btn-sm btn-outline-danger btn-icon"
+                              (click)="deleteTransaction(transaction.id)"
+                              title="Delete"
+                            >
+                              <i class="bi bi-trash"></i>
+                            </button>
                           </td>
                         </tr>
-                        <tr *ngIf="getCategoryTransactions(category.id).length === 0">
+                        <tr
+                          *ngIf="
+                            getCategoryTransactions(category.id).length === 0
+                          "
+                        >
                           <td colspan="3" class="text-center text-muted">
                             <small>No transactions yet</small>
                           </td>
@@ -158,18 +362,40 @@
                       <tfoot class="table-group-divider">
                         <tr class="fw-bold">
                           <td>Total</td>
-                          <td class="text-end" colspan="2">{{ formatCurrency(getCategoryTotal(category.id)) }}</td>
-                        </tr>
-                        <tr *ngIf="getCategorySpending(category.id)?.remaining && getCategorySpending(category.id)!.remaining > 0" class="table-success">
-                          <td><small>Remaining</small></td>
                           <td class="text-end" colspan="2">
-                            <small>{{ formatCurrency(getCategorySpending(category.id)!.remaining) }}</small>
+                            {{ formatCurrency(getCategoryTotal(category.id)) }}
                           </td>
                         </tr>
-                        <tr *ngIf="getCategorySpending(category.id)?.overBudget && getCategorySpending(category.id)!.overBudget > 0" class="table-danger">
+                        <tr
+                          *ngIf="
+                            getCategorySpending(category.id)?.remaining &&
+                            getCategorySpending(category.id)!.remaining > 0
+                          "
+                          class="table-success"
+                        >
+                          <td><small>Remaining</small></td>
+                          <td class="text-end" colspan="2">
+                            <small>{{
+                              formatCurrency(
+                                getCategorySpending(category.id)!.remaining
+                              )
+                            }}</small>
+                          </td>
+                        </tr>
+                        <tr
+                          *ngIf="
+                            getCategorySpending(category.id)?.overBudget &&
+                            getCategorySpending(category.id)!.overBudget > 0
+                          "
+                          class="table-danger"
+                        >
                           <td><small>Over Budget</small></td>
                           <td class="text-end" colspan="2">
-                            <small>{{ formatCurrency(getCategorySpending(category.id)!.overBudget) }}</small>
+                            <small>{{
+                              formatCurrency(
+                                getCategorySpending(category.id)!.overBudget
+                              )
+                            }}</small>
                           </td>
                         </tr>
                       </tfoot>
@@ -178,15 +404,19 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Total Money Left Summary -->
-            <div class="card mt-3" *ngIf="currentMonthSummary">
-              <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Total Money Left</h5>
-              </div>
-              <div class="card-body">
-                <h3 class="text-center mb-0">{{ formatCurrency(totalMoneyLeft) }}</h3>
-              </div>
+        <!-- Total Money Left Summary - Fixed Bottom Right -->
+        <div class="total-money-left-card" *ngIf="currentMonthSummary">
+          <div class="card">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">
+                <i class="bi bi-wallet2 me-2"></i>Total Money Left
+              </h5>
+            </div>
+            <div class="card-body text-center">
+              <h3 class="mb-0">{{ formatCurrency(totalMoneyLeft) }}</h3>
             </div>
           </div>
         </div>
@@ -196,34 +426,581 @@
 </div>
 
 <!-- Add Transaction Modal -->
-<div class="modal" [class.show]="showAddTransactionModal" [style.display]="showAddTransactionModal ? 'block' : 'none'" tabindex="-1">
+<div
+  class="modal"
+  [class.show]="showAddTransactionModal"
+  [style.display]="showAddTransactionModal ? 'block' : 'none'"
+  tabindex="-1"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Add Transaction</h5>
-        <button type="button" class="btn-close" (click)="closeAddTransactionModal()"></button>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeAddTransactionModal()"
+        ></button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="addTransaction()">
           <div class="mb-3">
             <label for="amount" class="form-label">Amount (R)</label>
-            <input type="number" class="form-control" id="amount" [(ngModel)]="newTransaction.amount" name="amount" required step="0.01">
+            <input
+              type="number"
+              class="form-control"
+              id="amount"
+              [(ngModel)]="newTransaction.amount"
+              name="amount"
+              required
+              step="0.01"
+            />
           </div>
           <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <input type="text" class="form-control" id="description" [(ngModel)]="newTransaction.description" name="description">
+            <input
+              type="text"
+              class="form-control"
+              id="description"
+              [(ngModel)]="newTransaction.description"
+              name="description"
+            />
           </div>
           <div class="mb-3">
             <label for="date" class="form-label">Date</label>
-            <input type="date" class="form-control" id="date" [(ngModel)]="newTransaction.transaction_date" name="transaction_date" required>
+            <input
+              type="date"
+              class="form-control"
+              id="date"
+              [(ngModel)]="newTransaction.transaction_date"
+              name="transaction_date"
+              required
+              [min]="getMinTransactionDate()"
+              [max]="getMaxTransactionDate()"
+            />
+            <small class="text-muted"
+              >Transaction must be within {{ currentMonth?.month_name }}
+              {{ currentMonth?.year }}</small
+            >
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeAddTransactionModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="addTransaction()">Add Transaction</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeAddTransactionModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="addTransaction()"
+        >
+          Add Transaction
+        </button>
       </div>
     </div>
   </div>
 </div>
-<div class="modal-backdrop fade" [class.show]="showAddTransactionModal" *ngIf="showAddTransactionModal"></div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showAddTransactionModal"
+  *ngIf="showAddTransactionModal"
+></div>
+
+<!-- Add Fixed Payment Modal -->
+<div
+  class="modal"
+  [class.show]="showAddPaymentModal"
+  [style.display]="showAddPaymentModal ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Fixed Payment</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeAddPaymentModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addFixedPayment()">
+          <div class="mb-3">
+            <label for="paymentName" class="form-label">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="paymentName"
+              [(ngModel)]="newPayment.name"
+              name="paymentName"
+              required
+              placeholder="e.g., Car Payment"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="paymentAmount" class="form-label">Amount (R)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="paymentAmount"
+              [(ngModel)]="newPayment.amount"
+              name="paymentAmount"
+              required
+              step="0.01"
+              placeholder="e.g., 2500.00"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeAddPaymentModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="addFixedPayment()"
+        >
+          Add Payment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showAddPaymentModal"
+  *ngIf="showAddPaymentModal"
+></div>
+
+<!-- Add Budget Category Modal -->
+<div
+  class="modal"
+  [class.show]="showAddCategoryModal"
+  [style.display]="showAddCategoryModal ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Budget Category</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeAddCategoryModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addBudgetCategory()">
+          <div class="mb-3">
+            <label for="categoryName" class="form-label">Category Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="categoryName"
+              [(ngModel)]="newCategory.name"
+              name="categoryName"
+              required
+              placeholder="e.g., Entertainment"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="categoryAmount" class="form-label"
+              >Budget Amount (R)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="categoryAmount"
+              [(ngModel)]="newCategory.allocated_amount"
+              name="categoryAmount"
+              required
+              step="0.01"
+              placeholder="e.g., 1000.00"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeAddCategoryModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="addBudgetCategory()"
+        >
+          Add Category
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showAddCategoryModal"
+  *ngIf="showAddCategoryModal"
+></div>
+
+<!-- Edit Fixed Payment Modal -->
+<div
+  class="modal"
+  [class.show]="showEditPaymentModal"
+  [style.display]="showEditPaymentModal ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil me-2"></i>Edit Fixed Payment
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeEditPaymentModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateFixedPayment()">
+          <div class="mb-3">
+            <label for="editPaymentName" class="form-label">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="editPaymentName"
+              [(ngModel)]="editPayment.name"
+              name="editPaymentName"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="editPaymentAmount" class="form-label">Amount (R)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="editPaymentAmount"
+              [(ngModel)]="editPayment.amount"
+              name="editPaymentAmount"
+              required
+              step="0.01"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeEditPaymentModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="updateFixedPayment()"
+        >
+          <i class="bi bi-check-lg me-1"></i>Update Payment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showEditPaymentModal"
+  *ngIf="showEditPaymentModal"
+></div>
+
+<!-- Edit Budget Category Modal -->
+<div
+  class="modal"
+  [class.show]="showEditCategoryModal"
+  [style.display]="showEditCategoryModal ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil me-2"></i>Edit Budget Category
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeEditCategoryModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateBudgetCategory()">
+          <div class="mb-3">
+            <label for="editCategoryName" class="form-label"
+              >Category Name</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="editCategoryName"
+              [(ngModel)]="editCategory.name"
+              name="editCategoryName"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="editCategoryAmount" class="form-label"
+              >Budget Amount (R)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="editCategoryAmount"
+              [(ngModel)]="editCategory.allocated_amount"
+              name="editCategoryAmount"
+              required
+              step="0.01"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeEditCategoryModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="updateBudgetCategory()"
+        >
+          <i class="bi bi-check-lg me-1"></i>Update Category
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showEditCategoryModal"
+  *ngIf="showEditCategoryModal"
+></div>
+
+<!-- Add Month Modal -->
+<div
+  class="modal"
+  [class.show]="showAddMonthModal"
+  [style.display]="showAddMonthModal ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-calendar-plus me-2"></i>Add New Month
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeAddMonthModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addMonth()">
+          <div class="mb-3">
+            <label for="monthName" class="form-label">Month</label>
+            <select
+              class="form-select"
+              id="monthName"
+              [(ngModel)]="newMonth.month_name"
+              name="monthName"
+              required
+            >
+              <option value="" disabled>Select month...</option>
+              <option value="January" [disabled]="isMonthDisabled('January')">
+                January
+              </option>
+              <option value="February" [disabled]="isMonthDisabled('February')">
+                February
+              </option>
+              <option value="March" [disabled]="isMonthDisabled('March')">
+                March
+              </option>
+              <option value="April" [disabled]="isMonthDisabled('April')">
+                April
+              </option>
+              <option value="May" [disabled]="isMonthDisabled('May')">
+                May
+              </option>
+              <option value="June" [disabled]="isMonthDisabled('June')">
+                June
+              </option>
+              <option value="July" [disabled]="isMonthDisabled('July')">
+                July
+              </option>
+              <option value="August" [disabled]="isMonthDisabled('August')">
+                August
+              </option>
+              <option
+                value="September"
+                [disabled]="isMonthDisabled('September')"
+              >
+                September
+              </option>
+              <option value="October" [disabled]="isMonthDisabled('October')">
+                October
+              </option>
+              <option value="November" [disabled]="isMonthDisabled('November')">
+                November
+              </option>
+              <option value="December" [disabled]="isMonthDisabled('December')">
+                December
+              </option>
+            </select>
+            <small class="text-muted">Only the next month can be created</small>
+          </div>
+          <div class="mb-3">
+            <label for="monthYear" class="form-label">Year</label>
+            <input
+              type="number"
+              class="form-control"
+              id="monthYear"
+              [(ngModel)]="newMonth.year"
+              name="monthYear"
+              required
+              min="2000"
+              max="2100"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="monthIncome" class="form-label">Income (R)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="monthIncome"
+              [(ngModel)]="newMonth.income"
+              name="monthIncome"
+              required
+              step="0.01"
+              placeholder="e.g., 25000.00"
+            />
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="copyFromPrevious"
+                [checked]="newMonth.copyFromMonthId !== null"
+                (change)="
+                  newMonth.copyFromMonthId = $any($event.target).checked
+                    ? currentMonth?.id || null
+                    : null
+                "
+              />
+              <label class="form-check-label" for="copyFromPrevious">
+                Copy payments and budgets from current month
+              </label>
+            </div>
+            <small class="text-muted"
+              >This will copy your fixed payments and budget categories (without
+              transactions) to the new month</small
+            >
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeAddMonthModal()"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="addMonth()">
+          <i class="bi bi-check-lg me-1"></i>Create Month
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showAddMonthModal"
+  *ngIf="showAddMonthModal"
+></div>
+
+<!-- Edit Income Modal -->
+<div
+  class="modal"
+  [class.show]="showEditIncomeModal"
+  [style.display]="showEditIncomeModal ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-currency-dollar me-2"></i>Edit Income
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeEditIncomeModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateIncome()">
+          <div class="mb-3">
+            <label for="editIncomeAmount" class="form-label">Income (R)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="editIncomeAmount"
+              [(ngModel)]="editIncome.income"
+              name="editIncomeAmount"
+              required
+              step="0.01"
+              placeholder="e.g., 25000.00"
+            />
+            <small class="text-muted"
+              >This will update the income for {{ currentMonth?.month_name }}
+              {{ currentMonth?.year }}</small
+            >
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeEditIncomeModal()"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="updateIncome()">
+          <i class="bi bi-check-lg me-1"></i>Update Income
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal-backdrop fade"
+  [class.show]="showEditIncomeModal"
+  *ngIf="showEditIncomeModal"
+></div>
